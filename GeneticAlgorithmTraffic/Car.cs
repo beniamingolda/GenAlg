@@ -14,11 +14,12 @@ namespace GeneticAlgorithmTraffic
         public int id;
         public Road road;
         public Point position;
-        public Node positionNode;
         public long waitingTime=0;
         public long nextUpdate = 10;
         public bool stoppedOnLight = false;
         public bool finish = false;
+        Node next=new Node();
+
         public Car(int id, List<Node> placeList)
         {
             this.id = id;
@@ -31,7 +32,18 @@ namespace GeneticAlgorithmTraffic
             
         }
 
-        Node next=new Node();
+        public void ResetPositions()
+        {
+            road.AddtoStack();
+            finish = false;
+            position = road.start;
+            waitingTime = 0;
+            nextUpdate = 10;
+            stoppedOnLight = false;
+            next = new Node();
+        }
+
+        
         public void Update(List<TrafficLight> redLights)
         {
             
@@ -48,6 +60,10 @@ namespace GeneticAlgorithmTraffic
                     stoppedOnLight = false;
                     nextUpdate = (long)(Variables.DistanceInKmBetweenEarthCoordinates((double)next.Latitude, (double)next.Longitude, position.Y, position.X) * 1000 / 13.89 * 1000);
                     //nowa pozycja
+                    if (nextUpdate == 0)
+                    {
+                        nextUpdate = 1;
+                    }
                     position.X = (double)next.Longitude;
                     position.Y = (double)next.Latitude;
                     //sprawdzić czy nadal czerwone
@@ -74,12 +90,20 @@ namespace GeneticAlgorithmTraffic
                             stoppedOnLight = true;
                             waitingTime = waitingTime + ((long)red.lightChangeTime - nextUpdate);
                             nextUpdate = (long)red.lightChangeTime;
+                            if (nextUpdate == 0)
+                            {
+                                nextUpdate = 1;
+                            }
                         }
                     }
                     if (stoppedOnLight == false)
                     {
                         //czas przejazdu
                         nextUpdate = (long)(Variables.DistanceInKmBetweenEarthCoordinates((double)next.Latitude, (double)next.Longitude, position.Y, position.X) * 1000 / 13.89 * 1000);
+                        if (nextUpdate == 0)
+                        {
+                            nextUpdate = 1;
+                        }
                         //nowa pozycja
                         position.X = (double)next.Longitude;
                         position.Y = (double)next.Latitude;

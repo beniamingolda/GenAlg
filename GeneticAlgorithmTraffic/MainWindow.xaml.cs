@@ -55,7 +55,7 @@ namespace GeneticAlgorithmTraffic
         private void Refresh_Click(object sender, RoutedEventArgs e)
         {
             MyMapControl = backupMap;
-            setup.LoadNextSimulation();
+            setup.LoadNextSimulation(Variables.MIN_IN_MILIS);
         }
     }
 }

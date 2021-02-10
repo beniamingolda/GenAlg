@@ -127,10 +127,11 @@ namespace GeneticAlgorithmTraffic
                 var crossing = new Crossing(counter++);
                 tmpTrafficLights = crossing.SetupTrafficLights(tmpTrafficLights, (int)time);
                 crossings.Add(crossing);
+                
             }
-            
-            backupCrossings = crossings;
-            PrintLog("Wczytano sygnalizację");
+
+
+
         }
 
 
@@ -143,7 +144,9 @@ namespace GeneticAlgorithmTraffic
                 Thread singleCar = new Thread(() =>
                 {
                     var c = new Car(i + 1, osmDataManager.GetCityNodes());
+                    
                     cars.Add(c);
+
                     PrintLog("pojazd " + i.ToString() + "  dodany");
                 });
 
@@ -151,7 +154,9 @@ namespace GeneticAlgorithmTraffic
                 singleCar.Join();
                 
             }
-            backupCars = cars;
+
+
+            
         }
 
         private static void CarsLayerUpdate(MapControl myMapControl)
@@ -225,11 +230,17 @@ namespace GeneticAlgorithmTraffic
                 greenLightsLayer.RefreshData(greenLightsLayer.Envelope, 1, true);//ViewChanged(true, greenTrafficSignalsLayer.Envelope, 1);
             }
         }
-        public void LoadNextSimulation()
+        public void LoadNextSimulation(double time)
         {
             PrintLog("Wczytywanie kolejnej symulacji");
-            cars = backupCars;
-            crossings = backupCrossings;
+            foreach(var c in cars)
+            {
+                c.ResetPositions();
+            }
+            foreach(var cro in crossings)
+            {
+                cro.ResetAndChangeTime(time);
+            }
             PrintLog("Zresetowano");
 
         }

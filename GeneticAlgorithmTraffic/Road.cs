@@ -32,8 +32,12 @@ namespace GeneticAlgorithmTraffic
             this.start = start;
             this.end = end;
             roadNodes = GetRoute(start, end);
+            AddtoStack();
+        }
+        public void AddtoStack()
+        {
             ongoingRoad = new Stack<Node>();
-            for(int i = roadNodes.Count - 1; i >= 0; i--)
+            for (int i = roadNodes.Count - 1; i >= 0; i--)
             {
                 ongoingRoad.Push(roadNodes[i]);
             }
