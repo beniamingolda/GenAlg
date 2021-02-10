@@ -9,7 +9,7 @@ namespace GeneticAlgorithmTraffic
     class Variables
     {
         public const string OSM_FILE_NAME = "swietokrzyskie-latest.osm.pbf";
-        public const int MIN_IN_MILIS = 60000;
+        public const int MIN_IN_MILIS = 10000;
 		public static Random random = new Random();
 		public const string OSRM_URL = "http://router.project-osrm.org/route/v1/driving/";
 

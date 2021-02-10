@@ -45,8 +45,8 @@ namespace GeneticAlgorithmTraffic
                 }
                 if (i * 2 + 1 < trafficLights.Count)
                 {
-                    trafficLights[i * 2 + 1].greenOn = false;
-                    trafficLights[i * 2 + 1].greenStart = false;
+                    trafficLights[i * 2 + 1].greenOn = true;
+                    trafficLights[i * 2 + 1].greenStart = true;
                 }
             }
             //pętla?

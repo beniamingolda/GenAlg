@@ -171,7 +171,6 @@
     <Compile Include="Crossing.cs" />
     <Compile Include="OsmDataManager.cs" />
     <Compile Include="Road.cs" />
-    <Compile Include="Simulation.cs" />
     <Compile Include="TrafficLight.cs" />
     <Compile Include="Variables.cs" />
     <Page Include="MainWindow.xaml">

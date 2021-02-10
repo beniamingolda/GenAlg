@@ -15,6 +15,7 @@ namespace GeneticAlgorithmTraffic
         public Road road;
         public Point position;
         public Node positionNode;
+        public long waitingTime=0;
         public long nextUpdate = 10;
         public bool stoppedOnLight = false;
         public bool finish = false;
@@ -29,9 +30,11 @@ namespace GeneticAlgorithmTraffic
             road = new Road(startPosition, endPosition);
             
         }
+
+        Node next=new Node();
         public void Update(List<TrafficLight> redLights)
         {
-            Node next=new Node();
+            
             //jeśli wywołana to jedzie
             //jeśli stoppedOnLight to stoi
             //jeśli finisz to stoi
@@ -61,10 +64,15 @@ namespace GeneticAlgorithmTraffic
                     //czy czerwone
                     foreach (var red in redLights)
                     {
+                        var distance= Variables.DistanceInKmBetweenEarthCoordinates((double)next.Latitude, (double)next.Longitude, (double)red.trafficLightNode.Latitude, (double)red.trafficLightNode.Longitude) * 1000;
+                        var redPos = SphericalMercator.FromLonLat((double)red.trafficLightNode.Longitude, (double)red.trafficLightNode.Latitude).ToDoubleArray();
                         //test czy czerwone
-                        if (nextPos == SphericalMercator.FromLonLat((double)red.trafficLightNode.Longitude, (double)red.trafficLightNode.Latitude).ToDoubleArray())
+                        //if (nextPos == redPos)
+                        //if(next==red.trafficLightNode)
+                        if(distance<10)
                         {
                             stoppedOnLight = true;
+                            waitingTime = waitingTime + ((long)red.lightChangeTime - nextUpdate);
                             nextUpdate = (long)red.lightChangeTime;
                         }
                     }

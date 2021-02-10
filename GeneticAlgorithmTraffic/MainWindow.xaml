@@ -12,11 +12,9 @@
         <ScrollViewer  HorizontalAlignment="Left" Height="551" Margin="615,10,0,0" VerticalAlignment="Top" Width="369" >
             <TextBox x:Name="Logs" Height="538" TextWrapping="Wrap" Width="344" IsReadOnly="True"/>
         </ScrollViewer>
-        <Label Content="Samochody: " HorizontalAlignment="Right" Height="25" Margin="0,442,884,0" VerticalAlignment="Top" Width="100" FontSize="13"/>
-        <TextBox x:Name="CarsCount" HorizontalAlignment="Left" Height="25" Margin="115,442,0,0" TextWrapping="Wrap" Text="100" VerticalAlignment="Top" Width="100" FontSize="13" FlowDirection="RightToLeft" VerticalContentAlignment="Center" />
-        <Button x:Name="AddCars" Content="Dodaj" HorizontalAlignment="Left" Height="25" Margin="220,442,0,0" VerticalAlignment="Top" Width="100" Click="AddCars_Click"/>
-        <Button x:Name="StartSimulation" Content="Start" HorizontalAlignment="Left" Height="35" Margin="401,517,0,0" VerticalAlignment="Top" Width="195" Click="StartSimulation_Click" />
-        <Button x:Name="ShowCity" Content="Centruj Kielce" HorizontalAlignment="Left" Height="25" Margin="401,442,0,0" VerticalAlignment="Top" Width="195" Click="ShowCity_Click"/>
+        <Button x:Name="StartSimulation" Content="Start" HorizontalAlignment="Left" Height="35" Margin="415,525,0,0" VerticalAlignment="Top" Width="195" Click="StartSimulation_Click" />
+        <Button x:Name="ShowCity" Content="Załaduj Kielce" HorizontalAlignment="Left" Height="25" Margin="10,414,0,0" VerticalAlignment="Top" Width="195" Click="ShowCity_Click"/>
+        <Button x:Name="Refresh" Content="Kolejna symulacja" HorizontalAlignment="Left" Height="26" Margin="10,444,0,0" VerticalAlignment="Top" Width="195" Click="Refresh_Click"/>
 
     </Grid>
 </Window>

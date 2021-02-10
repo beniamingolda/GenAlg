@@ -1,5 +1,6 @@
 ﻿using BruTile.Predefined;
 using Mapsui.Layers;
+using Mapsui.UI.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,18 +24,21 @@ namespace GeneticAlgorithmTraffic
     public partial class MainWindow : Window
     {
         private Setup setup;
+        MapControl backupMap;
         public MainWindow()
         {
             InitializeComponent();
 
             MyMapControl.Map.Layers.Add(new TileLayer(KnownTileSources.Create()));
             setup = new Setup(Logs);
+            backupMap = MyMapControl;
             
         }
 
         private void ShowCity_Click(object sender, RoutedEventArgs e)
         {
-            setup.ShowCity("Kielce", MyMapControl);
+            setup.ShowCity("Kielce", MyMapControl,Variables.MIN_IN_MILIS);
+            setup.GenerateCars(10);
         }
 
         private void AddCars_Click(object sender, RoutedEventArgs e)
@@ -45,7 +49,13 @@ namespace GeneticAlgorithmTraffic
 
         private void StartSimulation_Click(object sender, RoutedEventArgs e)
         {
-            setup.SimulationStart(MyMapControl);
+            setup.Start(MyMapControl);
+        }
+
+        private void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            MyMapControl = backupMap;
+            setup.LoadNextSimulation();
         }
     }
 }
