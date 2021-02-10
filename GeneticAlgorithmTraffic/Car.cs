@@ -35,6 +35,7 @@ namespace GeneticAlgorithmTraffic
         public void ResetPositions()
         {
             road.AddtoStack();
+            road.over = false;
             finish = false;
             position = road.start;
             waitingTime = 0;

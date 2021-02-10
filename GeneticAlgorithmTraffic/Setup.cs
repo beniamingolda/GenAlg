@@ -241,6 +241,7 @@ namespace GeneticAlgorithmTraffic
             {
                 cro.ResetAndChangeTime(time);
             }
+            time = 0;
             PrintLog("Zresetowano");
 
         }
