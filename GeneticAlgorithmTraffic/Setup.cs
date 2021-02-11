@@ -557,12 +557,11 @@ namespace GeneticAlgorithmTraffic
             
         }
 
-        public void AlgorithmSim(MapControl myMapControl)
+        public void AlgorithmSim(int simset, MapControl myMapControl)
         {
-            foreach(var k in resultOfAlgorithm)
-            {
+            
                 var i = 0;
-                foreach(var cr in k)
+                foreach(var cr in resultOfAlgorithm[simset])
                 {
                     crossings[i].ResetAndChangeTime(cr);
                     i++;
@@ -575,7 +574,7 @@ namespace GeneticAlgorithmTraffic
                 
                 //start symulacji
                 Start(myMapControl);
-            }
+            
             
         }
 

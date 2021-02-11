@@ -83,7 +83,7 @@ namespace GeneticAlgorithmTraffic
 
         private void Symulacja_Gen_Click(object sender, RoutedEventArgs e)
         {
-            setup.AlgorithmSim(MyMapControl);
+            setup.AlgorithmSim(0,MyMapControl);
         }
     }
 }
