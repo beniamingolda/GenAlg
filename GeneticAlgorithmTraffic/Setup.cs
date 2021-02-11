@@ -43,6 +43,15 @@ namespace GeneticAlgorithmTraffic
 
 
         public static long time=0;
+
+
+        public List<long> genSum;
+        public List<double[]> genChangeTime;
+        public List<double[]> resultOfAlgorithm;
+
+        public bool firstSim = true;
+        public long bestSum;
+        public double[] bestChangeTime;
         public Setup(TextBox Logs)
         {
             textBox = Logs;
@@ -52,7 +61,8 @@ namespace GeneticAlgorithmTraffic
             crossings = new List<Crossing>();
             backupCrossings = new List<Crossing>();
             trafficLights = new List<Node>();
-
+            genSum = new List<long>();
+            genChangeTime = new List<double[]>();
 
             new Task(() =>
             {
@@ -230,7 +240,7 @@ namespace GeneticAlgorithmTraffic
                 greenLightsLayer.RefreshData(greenLightsLayer.Envelope, 1, true);//ViewChanged(true, greenTrafficSignalsLayer.Envelope, 1);
             }
         }
-        public void LoadNextSimulation(double time)
+        public void LoadNextSimulation(double times)
         {
             PrintLog("Wczytywanie kolejnej symulacji");
             foreach(var c in cars)
@@ -239,9 +249,9 @@ namespace GeneticAlgorithmTraffic
             }
             foreach(var cro in crossings)
             {
-                cro.ResetAndChangeTime(time);
+                cro.ResetAndChangeTime(times);
             }
-            time = 0;
+            time =0;
             PrintLog("Zresetowano");
 
         }
@@ -387,14 +397,186 @@ namespace GeneticAlgorithmTraffic
                 }
                 if (test == 0)
                 {
+                    long sum=0;
                     loop = false;
                     PrintLog("Samochody dojechały");
                     foreach(var c in cars)
                     {
                         PrintLog("samochód czekał " + c.waitingTime);
+                        sum = sum + c.waitingTime;
                     }
+                    PrintLog("SUMA " + sum);
+                    genSum.Add(sum);
+                    double[] listOfTimes=new double[crossings.Count];
+                    var i = 0;
+                    foreach(var cro in crossings)
+                    {
+                        listOfTimes[i] = cro.changeTime;
+                        i++;
+                    }
+
+                    
+                    genChangeTime.Add(listOfTimes);
+                    
                 }
             }
+        }
+
+
+        public void Algorithm()
+        {
+            //ocena
+            long sumOfTimes = 0;
+            foreach(var s in genSum)
+            {
+                sumOfTimes += s;
+            }
+            double[] ocena = new double[genSum.Count];
+            double ocenaSum = 0;
+            for(int i=0; i < ocena.Count(); i++)
+            {
+                ocena[i] = sumOfTimes / (double)genSum[i];
+                ocenaSum = ocenaSum + ocena[i];
+            }
+            double[] ocena2 = new double[ocena.Count()];
+            for (int i = 0; i < ocena2.Count(); i++)
+            {
+                ocena2[i] = ocena[i] / ocenaSum;
+            }
+            var tmpBest = genSum[0];
+            var tmpChangeTime = new double[genChangeTime.Count()];
+            for(var o=0;o<ocena2.Count();o++)
+            {
+                if (tmpBest < genSum[o])
+                {
+                    tmpBest = genSum[o];
+                    tmpChangeTime = genChangeTime[o];
+                }
+            }
+            //zapisanie najlepszego rozwiązania
+            if (firstSim==true)
+            {
+                bestSum = tmpBest;
+                bestChangeTime = tmpChangeTime;
+                firstSim = false;
+            }
+            else
+            {
+                if (bestSum > tmpBest)
+                {
+                    bestSum = tmpBest;
+                    bestChangeTime = tmpChangeTime;
+                }
+            }
+            PrintLog("Best time=" + bestSum);
+
+            //reprodukcja
+            List<double[]> reprodukcja = new List<double[]>();
+            var x = 0;
+            var z = 0;
+            var loop = true;
+            var d = Variables.random.NextDouble();
+            while (loop)
+            {
+                if (d<=ocena2[x])
+                {
+                    reprodukcja.Add( genChangeTime[x]);
+                    x = 0;
+                    z++;
+                    d = Variables.random.NextDouble();
+                    if (z == genChangeTime.Count()) 
+                    {
+                        loop = false;
+                    }
+
+                }
+                else
+                {
+                    d -= ocena2[x];
+                    x++;
+                }
+
+            }
+            /*foreach(var r in reprodukcja)
+            {
+                PrintLog("reprodukowane= " + r[0]);
+            }
+            */
+
+            //krzyżowanie
+            List<double[]> krzyzowanie = new List<double[]>();
+;
+            for(int i = 0; i < reprodukcja.Count(); i++)
+            {            
+                var k1 = Variables.random.Next() % reprodukcja.Count();
+                var k2 = Variables.random.Next() % reprodukcja.Count();
+                double[] tab = new double[reprodukcja[i].Count()];
+                var l = Variables.random.Next() % reprodukcja[i].Count();
+                for(var j=0; j < reprodukcja[i].Count(); j++)
+                {
+                    if (j <= l)
+                    {
+                        tab[j]=reprodukcja[k1][j];
+                    }
+                    else
+                    {
+                        tab[j] = reprodukcja[k2][j];
+                    }
+                }
+                krzyzowanie.Add(tab);
+
+            }
+            /*foreach( var k in krzyzowanie)
+            {
+                PrintLog("kolekcja");
+                foreach(var r in k)
+                {
+                    PrintLog("krzyzowanie= " + r);
+                }
+            }*/
+            
+
+
+            //mutacja
+            foreach(var k in krzyzowanie)
+            {
+                if ((Variables.random.Next() % 100) <= 5)
+                {
+                    var mutPos = Variables.random.Next() % k.Count();
+                    k[mutPos] = 10000+Variables.random.Next() % 20000;
+                }
+                
+            }
+            resultOfAlgorithm = krzyzowanie;
+            
+            
+            genChangeTime = new List<double[]>();
+            genSum = new List<long>();
+            //wczytać dane do symulacji
+            //dane dla pierwszej listy crossing
+            
+        }
+
+        public void AlgorithmSim(MapControl myMapControl)
+        {
+            foreach(var k in resultOfAlgorithm)
+            {
+                var i = 0;
+                foreach(var cr in k)
+                {
+                    crossings[i].ResetAndChangeTime(cr);
+                    i++;
+                }
+                foreach(var c in cars)
+                {
+                    c.ResetPositions();
+                }
+                time = 0;
+                
+                //start symulacji
+                Start(myMapControl);
+            }
+            
         }
 
     }

@@ -89,7 +89,18 @@ namespace GeneticAlgorithmTraffic
                         if(distance<10)
                         {
                             stoppedOnLight = true;
-                            waitingTime = waitingTime + ((long)red.lightChangeTime - nextUpdate);
+                            if(((long)red.lightChangeTime - nextUpdate) >= 0)
+                            {
+                                waitingTime = waitingTime + ((long)red.lightChangeTime - nextUpdate);
+                            }
+                            else
+                            {
+                                waitingTime = waitingTime + (long)red.lightChangeTime;
+                            }
+                            if (waitingTime < 0)
+                            {
+                                Console.WriteLine(waitingTime);
+                            }
                             nextUpdate = (long)red.lightChangeTime;
                             if (nextUpdate == 0)
                             {

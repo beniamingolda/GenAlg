@@ -14,7 +14,12 @@
         </ScrollViewer>
         <Button x:Name="StartSimulation" Content="Start" HorizontalAlignment="Left" Height="35" Margin="415,525,0,0" VerticalAlignment="Top" Width="195" Click="StartSimulation_Click" />
         <Button x:Name="ShowCity" Content="Załaduj Kielce" HorizontalAlignment="Left" Height="25" Margin="10,414,0,0" VerticalAlignment="Top" Width="195" Click="ShowCity_Click"/>
-        <Button x:Name="Refresh" Content="Kolejna symulacja" HorizontalAlignment="Left" Height="26" Margin="10,444,0,0" VerticalAlignment="Top" Width="195" Click="Refresh_Click"/>
+        <Button x:Name="Sim1" Content="Wczytaj Symulacje 1" HorizontalAlignment="Left" Height="26" Margin="10,444,0,0" VerticalAlignment="Top" Width="195" Click="Sim1_Click"/>
+        <Button x:Name="Sim2" Content="Wczytaj Symulacje 2" HorizontalAlignment="Left" Height="26" Margin="10,475,0,0" VerticalAlignment="Top" Width="195" Click="Sim2_Click" />
+        <Button x:Name="Sim3" Content="Wczytaj Symulacje 3" HorizontalAlignment="Left" Height="26" Margin="10,506,0,0" VerticalAlignment="Top" Width="195" Click="Sim3_Click" />
+        <Button x:Name="Sim4" Content="Wczytaj Symulacje 4" HorizontalAlignment="Left" Height="26" Margin="10,537,0,0" VerticalAlignment="Top" Width="195" Click="Sim4_Click"  />
+        <Button x:Name="Algorytm_Genetyczny" Content="Algorytm Genetyczny" HorizontalAlignment="Left" Height="26" Margin="210,444,0,0" VerticalAlignment="Top" Width="195" Click="Algorytm_Genetyczny_Click"/>
+        <Button x:Name="Symulacja_Gen" Content="Symulacja_Gen" HorizontalAlignment="Left" Height="26" Margin="415,444,0,0" VerticalAlignment="Top" Width="195" Click="Symulacja_Gen_Click" />
 
     </Grid>
 </Window>

@@ -38,7 +38,7 @@ namespace GeneticAlgorithmTraffic
         private void ShowCity_Click(object sender, RoutedEventArgs e)
         {
             setup.ShowCity("Kielce", MyMapControl,Variables.MIN_IN_MILIS);
-            setup.GenerateCars(10);
+            setup.GenerateCars(1);
         }
 
         private void AddCars_Click(object sender, RoutedEventArgs e)
@@ -52,10 +52,38 @@ namespace GeneticAlgorithmTraffic
             setup.Start(MyMapControl);
         }
 
-        private void Refresh_Click(object sender, RoutedEventArgs e)
+        private void Sim1_Click(object sender, RoutedEventArgs e)
         {
             MyMapControl = backupMap;
             setup.LoadNextSimulation(Variables.MIN_IN_MILIS);
+        }
+
+        private void Sim2_Click(object sender, RoutedEventArgs e)
+        {
+            MyMapControl = backupMap;
+            setup.LoadNextSimulation(Variables.MIN_IN_MILIS * 2);
+        }
+
+        private void Sim3_Click(object sender, RoutedEventArgs e)
+        {
+            MyMapControl = backupMap;
+            setup.LoadNextSimulation(Variables.MIN_IN_MILIS * 3);
+        }
+
+        private void Sim4_Click(object sender, RoutedEventArgs e)
+        {
+            MyMapControl = backupMap;
+            setup.LoadNextSimulation(Variables.MIN_IN_MILIS * 1.5);
+        }
+
+        private void Algorytm_Genetyczny_Click(object sender, RoutedEventArgs e)
+        {
+            setup.Algorithm();
+        }
+
+        private void Symulacja_Gen_Click(object sender, RoutedEventArgs e)
+        {
+            setup.AlgorithmSim(MyMapControl);
         }
     }
 }
