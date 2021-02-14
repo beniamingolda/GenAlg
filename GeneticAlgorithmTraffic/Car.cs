@@ -47,45 +47,26 @@ namespace GeneticAlgorithmTraffic
         
         public void Update(List<TrafficLight> redLights)
         {
-            
-            //jeśli wywołana to jedzie
-            //jeśli stoppedOnLight to stoi
-            //jeśli finisz to stoi
             if (finish == false)
             {
-
-                //if next node czerwone to stoi
-                //nextUpdate wywołuje się za tyle ile światło sie zmieni
                 if (stoppedOnLight == true)
                 {
                     stoppedOnLight = false;
-                    nextUpdate = (long)(Variables.DistanceInKmBetweenEarthCoordinates((double)next.Latitude, (double)next.Longitude, position.Y, position.X) * 1000 / 13.89 * 1000);
-                    //nowa pozycja
+                    nextUpdate = (long)(Variables.DistanceInKm((double)next.Latitude, (double)next.Longitude, position.Y, position.X) * 1000 / 13.89 * 1000);
+
                     if (nextUpdate == 0)
                     {
                         nextUpdate = 1;
                     }
                     position.X = (double)next.Longitude;
                     position.Y = (double)next.Latitude;
-                    //sprawdzić czy nadal czerwone
-                    //nextUpdate=
                 }
                 else if (stoppedOnLight == false)
                 {
-
-
-                    //następna pozycja
                     next = road.NextNode();
-                    var nextPos=SphericalMercator.FromLonLat((double)next.Longitude, (double)next.Latitude).ToDoubleArray();
-                    
-                    //czy czerwone
                     foreach (var red in redLights)
                     {
-                        var distance= Variables.DistanceInKmBetweenEarthCoordinates((double)next.Latitude, (double)next.Longitude, (double)red.trafficLightNode.Latitude, (double)red.trafficLightNode.Longitude) * 1000;
-                        var redPos = SphericalMercator.FromLonLat((double)red.trafficLightNode.Longitude, (double)red.trafficLightNode.Latitude).ToDoubleArray();
-                        //test czy czerwone
-                        //if (nextPos == redPos)
-                        //if(next==red.trafficLightNode)
+                        var distance= Variables.DistanceInKm((double)next.Latitude, (double)next.Longitude, (double)red.trafficLightNode.Latitude, (double)red.trafficLightNode.Longitude) * 1000;
                         if(distance<10)
                         {
                             stoppedOnLight = true;
@@ -110,21 +91,14 @@ namespace GeneticAlgorithmTraffic
                     }
                     if (stoppedOnLight == false)
                     {
-                        //czas przejazdu
-                        nextUpdate = (long)(Variables.DistanceInKmBetweenEarthCoordinates((double)next.Latitude, (double)next.Longitude, position.Y, position.X) * 1000 / 13.89 * 1000);
+                        nextUpdate = (long)(Variables.DistanceInKm((double)next.Latitude, (double)next.Longitude, position.Y, position.X) * 1000 / 13.89 * 1000);
                         if (nextUpdate == 0)
                         {
                             nextUpdate = 1;
                         }
-                        //nowa pozycja
                         position.X = (double)next.Longitude;
                         position.Y = (double)next.Latitude;
                     }
-                    /*if(stoppedOnLight==true)
-                    {
-                        //nextUpdate=czas zmiany na zielone
-                    }*/
-                    
 
                 }
                 if (road.over == true)

@@ -10,24 +10,24 @@ using System.Threading.Tasks;
 
 namespace GeneticAlgorithmTraffic
 {
-    class OsmDataManager
+    class LoadMapNodes
     {
-		private Point mapMinPoint;
-		private Point mapMaxPoint;
+		private Point minMapPoint;
+		private Point maxMapPoint;
 
 		public static Dictionary<long, Node> allNodes;
         public static FileStream fileStream;
 
-        public OsmDataManager()
+        public LoadMapNodes()
         {
             allNodes = new Dictionary<long, Node>();
-            fileStream = File.OpenRead(Variables.OSM_FILE_NAME);
+            fileStream = File.OpenRead(Variables.FILE_NAME);
             LoadAllNodes();
         }
 
         void LoadAllNodes()
         {
-            using (var fileStream = File.OpenRead(Variables.OSM_FILE_NAME))
+            using (var fileStream = File.OpenRead(Variables.FILE_NAME))
             {
 
                 var src = new PBFOsmStreamSource(fileStream);
@@ -44,10 +44,9 @@ namespace GeneticAlgorithmTraffic
             }
         }
 
-		public List<Node> getCityBorderByNameFromRelation(string cityName)
+		public List<Node> LoadCity(string cityName)
 		{
 			var nodes = new List<Node>();
-
 			var src = new PBFOsmStreamSource(fileStream);
 			var cityBoundary = from osmGeo in src
 							   where osmGeo.Type == OsmGeoType.Relation && osmGeo.Tags != null && osmGeo.Tags.Contains("boundary", "administrative") && osmGeo.Tags.Contains("name", cityName) && osmGeo.Tags.Contains("name:prefix", "miasto")
@@ -68,7 +67,6 @@ namespace GeneticAlgorithmTraffic
 				}
 			}
 			var nodesIds = new List<long>();
-
 			var waysCityBoundary = from osmGeo in src
 								   where osmGeo.Type == OsmGeoType.Way && waysIds.Contains((long)osmGeo.Id)
 								   select osmGeo;
@@ -86,31 +84,28 @@ namespace GeneticAlgorithmTraffic
 			var nodesCityBoundary = from osmGeo in src
 									where osmGeo.Type == OsmGeoType.Node && nodesIds.Contains((long)osmGeo.Id)
 									select osmGeo;
-
 			foreach (var node in nodesCityBoundary)
 				if (node.Type == OsmGeoType.Node)
 				{
 					Node nodeTmp = (Node)node;
 					if (!allNodes.ContainsKey((long)node.Id)) 
 						allNodes.Add((long)node.Id, (Node)node);
-
 					nodes.Add(nodeTmp);
 				}
-
 			return nodes;
 		}
-		public void SetBoundaryPoints(Point maxPoint, Point minPoint)
+		public void LoadBoundaryPoints(Point maxPoint, Point minPoint)
 		{
-			mapMaxPoint = maxPoint;
-			mapMinPoint = minPoint;
+			maxMapPoint = maxPoint;
+			minMapPoint = minPoint;
 		}
 
-		public List<Node> GetTrafficLights()
+		public List<Node> LoadTrafficLights()
 		{
 			var returningColection = new List<Node>();
-			using (var fileStream = File.OpenRead(Variables.OSM_FILE_NAME))
+			using (var fileStream = File.OpenRead(Variables.FILE_NAME))
 			{
-				var src = new PBFOsmStreamSource(fileStream).FilterBox((float)mapMinPoint.X, (float)mapMaxPoint.Y, (float)mapMaxPoint.X, (float)mapMinPoint.Y);
+				var src = new PBFOsmStreamSource(fileStream).FilterBox((float)minMapPoint.X, (float)maxMapPoint.Y, (float)maxMapPoint.X, (float)minMapPoint.Y);
 				var nodes = from osmGeo in src 
 							where osmGeo.Tags != null && (osmGeo.Tags.Contains("crossing", "traffic_signals") || osmGeo.Tags.Contains("highway", "traffic_signals")) 
 							select osmGeo;
@@ -129,7 +124,7 @@ namespace GeneticAlgorithmTraffic
 			return returningColection;
 		}
 
-		public static List<Node> GetNodesByIdsFromRoute(List<long> ids)
+		public static List<Node> LoadNodesFromRouteId(List<long> ids)
 		{
 			var lost = 0;
 			var returningCollection = new List<Node>();
@@ -145,12 +140,12 @@ namespace GeneticAlgorithmTraffic
 
 		}
 
-		public List<Node> GetCityNodes()
+		public List<Node> LoadCityNodes()
 		{
 			var returningColection = new List<Node>();
-			using (var fileStream = File.OpenRead(Variables.OSM_FILE_NAME))
+			using (var fileStream = File.OpenRead(Variables.FILE_NAME))
 			{
-				var src = new PBFOsmStreamSource(fileStream).FilterBox((float)mapMinPoint.X, (float)mapMaxPoint.Y, (float)mapMaxPoint.X, (float)mapMinPoint.Y);
+				var src = new PBFOsmStreamSource(fileStream).FilterBox((float)minMapPoint.X, (float)maxMapPoint.Y, (float)maxMapPoint.X, (float)minMapPoint.Y);
 				var nodes = from osmGeo in src
 							where osmGeo.Tags != null
 							select osmGeo;
@@ -162,7 +157,7 @@ namespace GeneticAlgorithmTraffic
 						if (!allNodes.ContainsKey((long)node.Id))
 							allNodes.Add((long)node.Id, (Node)node);
 
-						//SimulationManager.trafficSignalsIds.Add((long)node.Id);
+						
 					}
 				}
 			}

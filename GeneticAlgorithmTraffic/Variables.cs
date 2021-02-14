@@ -8,13 +8,14 @@ namespace GeneticAlgorithmTraffic
 {
     class Variables
     {
-        public const string OSM_FILE_NAME = "swietokrzyskie-latest.osm.pbf";
-        public const int MIN_IN_MILIS = 10000;
+        public const string FILE_NAME = "swietokrzyskie-latest.osm.pbf";
+        public const int SIMULATION_TIME = 10000;
 		public static Random random = new Random();
-		public const string OSRM_URL = "http://router.project-osrm.org/route/v1/driving/";
+		public const string OSRM_URL = "http://localhost:5000/route/v1/driving/";
+		//router.project-osrm.org
+		//localhost:5000
 
-
-		public static double DistanceInKmBetweenEarthCoordinates(double latitude1, double longitude1, double latitude2, double longitude2)
+		public static double DistanceInKm(double latitude1, double longitude1, double latitude2, double longitude2)
 		{
 			var earthRadiusKm = 6371;
 

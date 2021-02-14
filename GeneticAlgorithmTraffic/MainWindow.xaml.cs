@@ -37,53 +37,40 @@ namespace GeneticAlgorithmTraffic
 
         private void ShowCity_Click(object sender, RoutedEventArgs e)
         {
-            setup.ShowCity("Kielce", MyMapControl,Variables.MIN_IN_MILIS);
-            setup.GenerateCars(1);
+            setup.ShowCity( MyMapControl,Variables.SIMULATION_TIME);
+            setup.GenerateCars(100);
         }
 
-        private void AddCars_Click(object sender, RoutedEventArgs e)
-        {
-            //setup.PrintLog("TEST");
-            setup.GenerateCars(10);
-        }
 
-        private void StartSimulation_Click(object sender, RoutedEventArgs e)
+        /*private void StartSimulation_Click(object sender, RoutedEventArgs e)
         {
             setup.Start(MyMapControl);
-        }
+        }*/
 
         private void Sim1_Click(object sender, RoutedEventArgs e)
         {
-            MyMapControl = backupMap;
-            setup.LoadNextSimulation(Variables.MIN_IN_MILIS);
+            
+            setup.LoadNextSimulation(Variables.SIMULATION_TIME);
+            setup.Start(MyMapControl);
+            setup.LoadNextSimulation(Variables.SIMULATION_TIME * 2);
+            setup.Start(MyMapControl);
+            setup.LoadNextSimulation(Variables.SIMULATION_TIME * 3);
+            setup.Start(MyMapControl);
+            setup.LoadNextSimulation(Variables.SIMULATION_TIME * 1.5);
+            setup.Start(MyMapControl);
         }
 
-        private void Sim2_Click(object sender, RoutedEventArgs e)
-        {
-            MyMapControl = backupMap;
-            setup.LoadNextSimulation(Variables.MIN_IN_MILIS * 2);
-        }
-
-        private void Sim3_Click(object sender, RoutedEventArgs e)
-        {
-            MyMapControl = backupMap;
-            setup.LoadNextSimulation(Variables.MIN_IN_MILIS * 3);
-        }
-
-        private void Sim4_Click(object sender, RoutedEventArgs e)
-        {
-            MyMapControl = backupMap;
-            setup.LoadNextSimulation(Variables.MIN_IN_MILIS * 1.5);
-        }
-
+        
         private void Algorytm_Genetyczny_Click(object sender, RoutedEventArgs e)
         {
-            setup.Algorithm();
+            for(int i = 0; i < 10; i++)
+            {
+                setup.Algorithm();
+                setup.AlgorithmSim(MyMapControl);
+            }
+            
         }
 
-        private void Symulacja_Gen_Click(object sender, RoutedEventArgs e)
-        {
-            setup.AlgorithmSim(0,MyMapControl);
-        }
+
     }
 }

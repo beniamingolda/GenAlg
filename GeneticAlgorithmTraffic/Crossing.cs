@@ -29,11 +29,10 @@ namespace GeneticAlgorithmTraffic
             trafficLights.Add(new TrafficLight(trafficLightNode,changeTime));
             trafficLightsList.Remove(trafficLightNode);
             double distance;
-
             foreach(var node in trafficLightsList)
             {
-                distance = Variables.DistanceInKmBetweenEarthCoordinates((double)node.Latitude, (double)node.Longitude, (double)trafficLightNode.Latitude, (double)trafficLightNode.Longitude) * 1000;
-                if (distance < 150)
+                distance = Variables.DistanceInKm((double)node.Latitude, (double)node.Longitude, (double)trafficLightNode.Latitude, (double)trafficLightNode.Longitude) * 1000;
+                if (distance < 100)
                 {
                     trafficLights.Add(new TrafficLight(node,changeTime));
                 }
@@ -51,7 +50,6 @@ namespace GeneticAlgorithmTraffic
                     trafficLights[i * 2 + 1].greenStart = true;
                 }
             }
-            //pętla?
             foreach(var tl in trafficLights)
             {
                 trafficLightsList.Remove(tl.trafficLightNode);
@@ -74,6 +72,8 @@ namespace GeneticAlgorithmTraffic
                     trafficLights[i * 2 + 1].greenStart = true;
                 }
             }
+           
+            
             foreach(var tl in trafficLights)
             {
                 tl.lightChangeTime = time;

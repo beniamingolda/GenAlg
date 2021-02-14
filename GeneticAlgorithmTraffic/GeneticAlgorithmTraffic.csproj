@@ -169,8 +169,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Crossing.cs" />
-    <Compile Include="GeneticAlg.cs" />
-    <Compile Include="OsmDataManager.cs" />
+    <Compile Include="LoadMapNodes.cs" />
     <Compile Include="Road.cs" />
     <Compile Include="TrafficLight.cs" />
     <Compile Include="Variables.cs" />

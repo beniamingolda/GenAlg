@@ -6,20 +6,15 @@
         xmlns:xaml="clr-namespace:Mapsui.UI.Wpf;assembly=Mapsui.UI.Wpf"
         xmlns:local="clr-namespace:GeneticAlgorithmTraffic"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1000">
-    <Grid>
-        <xaml:MapControl Name="MyMapControl" Height="400" Width="600" Margin="0,0,384,161" HorizontalAlignment="Right" VerticalAlignment="Bottom"></xaml:MapControl>
-        <ScrollViewer  HorizontalAlignment="Left" Height="551" Margin="615,10,0,0" VerticalAlignment="Top" Width="369" >
-            <TextBox x:Name="Logs" Height="538" TextWrapping="Wrap" Width="344" IsReadOnly="True"/>
+        Title="MainWindow" Height="500" Width="1000">
+    <Grid Height="471" Margin="0,0,-0.4,-0.6" VerticalAlignment="Top">
+        <xaml:MapControl Name="MyMapControl" Height="400" Width="600" Margin="0,0,384,62" HorizontalAlignment="Right" VerticalAlignment="Bottom"></xaml:MapControl>
+        <ScrollViewer  HorizontalAlignment="Left" Height="430" Margin="615,10,0,0" VerticalAlignment="Top" Width="369" >
+            <TextBox x:Name="Logs" Height="430" TextWrapping="Wrap" Width="344" IsReadOnly="True"/>
         </ScrollViewer>
-        <Button x:Name="StartSimulation" Content="Start" HorizontalAlignment="Left" Height="35" Margin="415,525,0,0" VerticalAlignment="Top" Width="195" Click="StartSimulation_Click" />
-        <Button x:Name="ShowCity" Content="Załaduj Kielce" HorizontalAlignment="Left" Height="25" Margin="10,414,0,0" VerticalAlignment="Top" Width="195" Click="ShowCity_Click"/>
-        <Button x:Name="Sim1" Content="Wczytaj Symulacje 1" HorizontalAlignment="Left" Height="26" Margin="10,444,0,0" VerticalAlignment="Top" Width="195" Click="Sim1_Click"/>
-        <Button x:Name="Sim2" Content="Wczytaj Symulacje 2" HorizontalAlignment="Left" Height="26" Margin="10,475,0,0" VerticalAlignment="Top" Width="195" Click="Sim2_Click" />
-        <Button x:Name="Sim3" Content="Wczytaj Symulacje 3" HorizontalAlignment="Left" Height="26" Margin="10,506,0,0" VerticalAlignment="Top" Width="195" Click="Sim3_Click" />
-        <Button x:Name="Sim4" Content="Wczytaj Symulacje 4" HorizontalAlignment="Left" Height="26" Margin="10,537,0,0" VerticalAlignment="Top" Width="195" Click="Sim4_Click"  />
-        <Button x:Name="Algorytm_Genetyczny" Content="Algorytm Genetyczny" HorizontalAlignment="Left" Height="26" Margin="210,444,0,0" VerticalAlignment="Top" Width="195" Click="Algorytm_Genetyczny_Click"/>
-        <Button x:Name="Symulacja_Gen" Content="Symulacja_Gen" HorizontalAlignment="Left" Height="26" Margin="415,444,0,0" VerticalAlignment="Top" Width="195" Click="Symulacja_Gen_Click" />
+        <Button x:Name="ShowCity" Content="Wczytaj Dane Początkowe" HorizontalAlignment="Left" Height="26" Margin="10,414,0,0" VerticalAlignment="Top" Width="195" Click="ShowCity_Click"/>
+        <Button x:Name="Sim1" Content="Rozpocznij Symulacje" HorizontalAlignment="Left" Height="26" Margin="210,414,0,0" VerticalAlignment="Top" Width="195" Click="Sim1_Click"/>
+        <Button x:Name="Algorytm_Genetyczny" Content="Algorytm Genetyczny" HorizontalAlignment="Left" Height="26" Margin="410,414,0,0" VerticalAlignment="Top" Width="195" Click="Algorytm_Genetyczny_Click"/>
 
     </Grid>
 </Window>

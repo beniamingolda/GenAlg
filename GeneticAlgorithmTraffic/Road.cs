@@ -19,19 +19,19 @@ namespace GeneticAlgorithmTraffic
         public Stack<Node> ongoingRoad;
         public Node next; 
         public bool over = false;
-        public Road()
+        /*public Road()
         {
             roadNodes = new List<Node>();
             start = new Point();
             end = new Point();
             ongoingRoad = new Stack<Node>();
-        }
+        }*/
 
         public Road(Point start, Point end)
         {
             this.start = start;
             this.end = end;
-            roadNodes = GetRoute(start, end);
+            roadNodes = GetRoad(start, end);
             AddtoStack();
         }
         public void AddtoStack()
@@ -59,7 +59,7 @@ namespace GeneticAlgorithmTraffic
         }
 
 
-        public static List<Node> GetRoute(Point begining, Point ending)
+        public static List<Node> GetRoad(Point begining, Point ending)
         {
             string osrmResponse = "";
             string beginPointX = begining.X.ToString().Replace(",", ".");
@@ -76,12 +76,12 @@ namespace GeneticAlgorithmTraffic
                 osrmResponse = reader.ReadToEnd();
             }
             JObject j = JObject.Parse(osrmResponse);
-            List<long> ids = GetRouteNodes(j);
-            List<Node> nodes = OsmDataManager.GetNodesByIdsFromRoute(ids);
+            List<long> ids = GetRoadNodes(j);
+            List<Node> nodes = LoadMapNodes.LoadNodesFromRouteId(ids);
             return nodes;
         }
 
-        public static List<long> GetRouteNodes(JObject jObject)
+        public static List<long> GetRoadNodes(JObject jObject)
         {
             List<long> ids = new List<long>();
             var routesJArray = jObject.GetValue("routes");

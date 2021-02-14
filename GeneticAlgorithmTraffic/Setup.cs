@@ -19,15 +19,13 @@ namespace GeneticAlgorithmTraffic
     class Setup
     {
         public List<Car> cars;
-        public List<Car> backupCars;
         public List<Crossing> crossings;
-        public List<Crossing> backupCrossings;
         public List<Node> trafficLights;
-        //komunikaty
+
         public static TextBox textBox;
 
 
-        public OsmDataManager osmDataManager;
+        public LoadMapNodes loadMapNodes;
 
         private Point mapMinPoint;
         private Point mapMaxPoint;
@@ -52,21 +50,20 @@ namespace GeneticAlgorithmTraffic
         public bool firstSim = true;
         public long bestSum;
         public double[] bestChangeTime;
+        int pokolenie = 0;
         public Setup(TextBox Logs)
         {
             textBox = Logs;
             PrintLog("Wczytywanie");
             cars = new List<Car>();
-            backupCars = new List<Car>();
             crossings = new List<Crossing>();
-            backupCrossings = new List<Crossing>();
             trafficLights = new List<Node>();
             genSum = new List<long>();
             genChangeTime = new List<double[]>();
 
             new Task(() =>
             {
-                osmDataManager = new OsmDataManager();
+                loadMapNodes = new LoadMapNodes();
                 PrintLog("Wczytano");
             }).Start();
             
@@ -82,7 +79,7 @@ namespace GeneticAlgorithmTraffic
         }
 
 
-        public void ShowCity(string cityName, MapControl mapControl,int time)
+        public void ShowCity( MapControl mapControl,int croTime)
         {
 
             //wczytywanie granic miasta
@@ -90,13 +87,13 @@ namespace GeneticAlgorithmTraffic
             Thread bordersThread = new Thread(new ParameterizedThreadStart(LoadBorders));
             //wczytywanie sygnalizaji świetlnej 
             //skrzyżowań
-            Thread crossingsThread = new Thread(new ParameterizedThreadStart(LoadTrafficLights));
+            Thread crossingsThread = new Thread(new ParameterizedThreadStart(LoadCrossings));
 
             
-            bordersThread.Start(cityName);
+            bordersThread.Start("Kielce");
             bordersThread.Join();
             PrintLog("Granice wczytano");
-            crossingsThread.Start(time);
+            crossingsThread.Start(croTime);
             
             mapControl.Navigator.NavigateTo(new BoundingBox(mapMinPoint, mapMaxPoint));
         }
@@ -105,7 +102,7 @@ namespace GeneticAlgorithmTraffic
         {
            
 
-            var bundaryNodes = osmDataManager.getCityBorderByNameFromRelation((string)cityName);
+            var bundaryNodes = loadMapNodes.LoadCity((string)cityName);
 
             var minLon = 900.0;
             var maxLon = -900.0;
@@ -113,7 +110,8 @@ namespace GeneticAlgorithmTraffic
             var maxLat = -900.0;
             foreach (Node n in bundaryNodes)
             {
-                if (!OsmDataManager.allNodes.ContainsKey((long)n.Id)) OsmDataManager.allNodes.Add((long)n.Id, n);
+                if (!LoadMapNodes.allNodes.ContainsKey((long)n.Id)) 
+                    LoadMapNodes.allNodes.Add((long)n.Id, n);
                 if (n.Latitude < minLat) minLat = (double)n.Latitude;
                 if (n.Longitude < minLon) minLon = (double)n.Longitude;
                 if (n.Latitude > maxLat) maxLat = (double)n.Latitude;
@@ -121,21 +119,21 @@ namespace GeneticAlgorithmTraffic
             }
             mapMinPoint = SphericalMercator.FromLonLat(minLon, minLat);
             mapMaxPoint = SphericalMercator.FromLonLat(maxLon, maxLat);
-            osmDataManager.SetBoundaryPoints(new Point(maxLon, maxLat), new Point(minLon, minLat));
+            loadMapNodes.LoadBoundaryPoints(new Point(maxLon, maxLat), new Point(minLon, minLat));
             
         }
 
-        public void LoadTrafficLights(object time)
+        public void LoadCrossings(object croTime)
         {
             PrintLog("Wczytywanie sygnalizacji");
-            trafficLights = osmDataManager.GetTrafficLights();
+            trafficLights = loadMapNodes.LoadTrafficLights();
             var tmpTrafficLights = trafficLights;
 
             var counter = 0;
             while (tmpTrafficLights.Count > 0)
             {
                 var crossing = new Crossing(counter++);
-                tmpTrafficLights = crossing.SetupTrafficLights(tmpTrafficLights, (int)time);
+                tmpTrafficLights = crossing.SetupTrafficLights(tmpTrafficLights, (int)croTime);
                 crossings.Add(crossing);
                 
             }
@@ -149,24 +147,25 @@ namespace GeneticAlgorithmTraffic
         {
             
             PrintLog("Generowanie pojazdów");
+            
             for(var i = 0; i < numberOfCars; i++)
             {
                 Thread singleCar = new Thread(() =>
                 {
-                    var c = new Car(i + 1, osmDataManager.GetCityNodes());
+                    var c = new Car(i + 1, loadMapNodes.LoadCityNodes());
                     
                     cars.Add(c);
 
-                    PrintLog("pojazd " + i.ToString() + "  dodany");
+                    PrintLog("Pojazd " + i.ToString() + "  dodany");
                 });
 
                 singleCar.Start();
-                singleCar.Join();
+                //singleCar.Join();
                 
             }
 
 
-            
+
         }
 
         private static void CarsLayerUpdate(MapControl myMapControl)
@@ -183,7 +182,7 @@ namespace GeneticAlgorithmTraffic
                     DataSource = provider,
                     Style = new SymbolStyle
                     {
-                        Fill = new Brush(new Color(0, 0, 255)),
+                        Fill = new Brush(new Color(0, 0, 0)),
                         SymbolScale = 0.25
                     }
                 };
@@ -202,7 +201,7 @@ namespace GeneticAlgorithmTraffic
             }
         }
 
-        private static void TrafficSignalsLayerUpdate(MapControl myMapControl)
+        private static void TrafficLightsLayerUpdate(MapControl myMapControl)
         {
             if (redLightsLayer == null)
             {
@@ -242,7 +241,6 @@ namespace GeneticAlgorithmTraffic
         }
         public void LoadNextSimulation(double times)
         {
-            PrintLog("Wczytywanie kolejnej symulacji");
             foreach(var c in cars)
             {
                 c.ResetPositions();
@@ -252,13 +250,14 @@ namespace GeneticAlgorithmTraffic
                 cro.ResetAndChangeTime(times);
             }
             time =0;
-            PrintLog("Zresetowano");
+
 
         }
         public void Start(MapControl myMapControl)
         {
             Task simulation=new Task(()=> { SimulationStart(myMapControl); }) ;
             simulation.Start();
+            simulation.Wait();
         }
 
         public void SimulationStart(MapControl myMapControl)
@@ -271,7 +270,6 @@ namespace GeneticAlgorithmTraffic
             var updatedTL = true;
             var updatedC = true;
 
-            //ustawienie początkowe
             foreach(var cro in crossings)
             {
                 foreach(var tl in cro.trafficLights)
@@ -292,16 +290,11 @@ namespace GeneticAlgorithmTraffic
                 carsMapPoints.Add(SphericalMercator.FromLonLat(c.position.X, c.position.Y).ToDoubleArray());
             }
 
-
-
-                //ustawić początkowe światła- niepowinno być problemu ponieważ pierwszy update samochodu jest po światłach ale lepiej ustawić
-                //pętla 
-                var loop = true;
+            var loop = true;
             //dopoki samochody jeżdżą to działa pętla
-            PrintLog("Start pętli");
+            PrintLog("Start symulacji");
             while (loop)
             {
-                //PrintLog("red=" + redLightsPoints.Count + " green=" + greenLightsPoints.Count);
                 time++;
                 foreach(var cro in crossings)
                 {
@@ -310,8 +303,6 @@ namespace GeneticAlgorithmTraffic
 
                         updatedTL = true;
                         cro.ChangeLights();
-                        
-                        //zmiana świateł
                     }
                 }
                 if (updatedTL)
@@ -335,21 +326,15 @@ namespace GeneticAlgorithmTraffic
                             }
                         }
                     }
-                    TrafficSignalsLayerUpdate(myMapControl);
+                    TrafficLightsLayerUpdate(myMapControl);
                     updatedTL = false;
                 }
-
                 foreach(var c in cars)
                 {
                     if (time % c.nextUpdate == 0)
                     {
                         updatedC = true;
-                        //ruch samochodu
                         c.Update(redLights);
-                        //jeśli update robi jednego samochodu
-                        
-                        //PrintLog("X=" + c.position.X + " Y=" + c.position.Y);
-
                     }
                 }
                 if (updatedC)
@@ -357,34 +342,11 @@ namespace GeneticAlgorithmTraffic
                     carsMapPoints = new List<double[]>();
                     foreach(var c in cars)
                     {
-                        //PrintLog("X=" + c.position.X + " Y=" + c.position.Y);
                         carsMapPoints.Add(SphericalMercator.FromLonLat(c.position.X, c.position.Y).ToDoubleArray());
-                        if (c.stoppedOnLight)
-                        {
-                            //PrintLog("stopped on light");
-                        }
                     }
                     CarsLayerUpdate(myMapControl);
                     updatedC = false;
                 }
-
-                //wyświetlanie
-                /*if (updatedTL || updatedC)
-                {
-                    if (updatedTL)
-                    {
-                        TrafficSignalsLayerUpdate(myMapControl);
-                    }
-                    if (updatedC)
-                    {
-                        CarsLayerUpdate(myMapControl);
-                    }
-
-                    greenLightsPoints = new List<double[]>();
-                    redLightsPoints = new List<double[]>();
-                    carsMapPoints = new List<double[]>();
-                    redLights = new List<TrafficLight>();
-                }*/
                 var test = 0;
                 foreach(var c in cars)
                 {
@@ -399,13 +361,11 @@ namespace GeneticAlgorithmTraffic
                 {
                     long sum=0;
                     loop = false;
-                    PrintLog("Samochody dojechały");
                     foreach(var c in cars)
                     {
-                        PrintLog("samochód czekał " + c.waitingTime);
                         sum = sum + c.waitingTime;
                     }
-                    PrintLog("SUMA " + sum);
+                    PrintLog("Czas postoju na czerwonym " + sum);
                     genSum.Add(sum);
                     double[] listOfTimes=new double[crossings.Count];
                     var i = 0;
@@ -413,11 +373,8 @@ namespace GeneticAlgorithmTraffic
                     {
                         listOfTimes[i] = cro.changeTime;
                         i++;
-                    }
-
-                    
-                    genChangeTime.Add(listOfTimes);
-                    
+                    }                   
+                    genChangeTime.Add(listOfTimes);                    
                 }
             }
         }
@@ -447,7 +404,7 @@ namespace GeneticAlgorithmTraffic
             var tmpChangeTime = new double[genChangeTime.Count()];
             for(var o=0;o<ocena2.Count();o++)
             {
-                if (tmpBest < genSum[o])
+                if (tmpBest > genSum[o])
                 {
                     tmpBest = genSum[o];
                     tmpChangeTime = genChangeTime[o];
@@ -505,7 +462,7 @@ namespace GeneticAlgorithmTraffic
 
             //krzyżowanie
             List<double[]> krzyzowanie = new List<double[]>();
-;
+
             for(int i = 0; i < reprodukcja.Count(); i++)
             {            
                 var k1 = Variables.random.Next() % reprodukcja.Count();
@@ -540,7 +497,7 @@ namespace GeneticAlgorithmTraffic
             //mutacja
             foreach(var k in krzyzowanie)
             {
-                if ((Variables.random.Next() % 100) <= 5)
+                if ((Variables.random.Next() % 100) <= 20)
                 {
                     var mutPos = Variables.random.Next() % k.Count();
                     k[mutPos] = 10000+Variables.random.Next() % 20000;
@@ -557,24 +514,27 @@ namespace GeneticAlgorithmTraffic
             
         }
 
-        public void AlgorithmSim(int simset, MapControl myMapControl)
+        public void AlgorithmSim( MapControl myMapControl)
         {
-            
+            pokolenie++;
+            PrintLog("Pokolenie " + pokolenie);
+            foreach(var r in resultOfAlgorithm)
+            {
                 var i = 0;
-                foreach(var cr in resultOfAlgorithm[simset])
+                foreach(var cr in r)
                 {
                     crossings[i].ResetAndChangeTime(cr);
                     i++;
                 }
-                foreach(var c in cars)
+                foreach (var c in cars)
                 {
                     c.ResetPositions();
                 }
                 time = 0;
-                
+
                 //start symulacji
                 Start(myMapControl);
-            
+            }
             
         }
 
