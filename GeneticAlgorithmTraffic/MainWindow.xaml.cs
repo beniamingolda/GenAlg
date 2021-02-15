@@ -25,6 +25,7 @@ namespace GeneticAlgorithmTraffic
     {
         private Setup setup;
         MapControl backupMap;
+        int mut;
         public MainWindow()
         {
             InitializeComponent();
@@ -38,7 +39,7 @@ namespace GeneticAlgorithmTraffic
         private void ShowCity_Click(object sender, RoutedEventArgs e)
         {
             setup.ShowCity( MyMapControl,Variables.SIMULATION_TIME);
-            setup.GenerateCars(5);
+            setup.GenerateCars(int.Parse(NumOfCars.Text));
         }
 
 
@@ -49,7 +50,8 @@ namespace GeneticAlgorithmTraffic
 
         private void Sim1_Click(object sender, RoutedEventArgs e)
         {
-            setup.Start2(MyMapControl);
+            setup.Start2(MyMapControl,int.Parse(RandStart.Text)*1000, int.Parse(RandEnd.Text)*1000,4);
+            mut = int.Parse(MutationPercent.Text);
             /*setup.LoadNextSimulation(Variables.SIMULATION_TIME);
             setup.Start(MyMapControl);
             setup.LoadNextSimulation(Variables.SIMULATION_TIME * 2);
@@ -66,7 +68,7 @@ namespace GeneticAlgorithmTraffic
 
             Task taskGen = new Task(() =>
             {
-                TaskGen(MyMapControl);
+                TaskGen(MyMapControl, mut);
             });
             taskGen.Start();
             /*for(int i = 0; i < 10; i++)
@@ -76,11 +78,11 @@ namespace GeneticAlgorithmTraffic
             }*/
             
         }
-        public void TaskGen(MapControl myMapControl)
+        public void TaskGen(MapControl myMapControl,int mutP)
         {
             for (int i = 0; i < 10; i++)
             {
-                setup.Algorithm();
+                setup.Algorithm(mutP);
                 setup.AlgorithmSim(MyMapControl);
             }
         }

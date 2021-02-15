@@ -6,15 +6,24 @@
         xmlns:xaml="clr-namespace:Mapsui.UI.Wpf;assembly=Mapsui.UI.Wpf"
         xmlns:local="clr-namespace:GeneticAlgorithmTraffic"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="1000">
-    <Grid Height="471" Margin="0,0,-0.4,-0.6" VerticalAlignment="Top">
-        <xaml:MapControl Name="MyMapControl" Height="400" Width="600" Margin="0,0,384,62" HorizontalAlignment="Right" VerticalAlignment="Bottom"></xaml:MapControl>
-        <ScrollViewer  HorizontalAlignment="Left" Height="430" Margin="615,10,0,0" VerticalAlignment="Top" Width="369" >
-            <TextBox x:Name="Logs" Height="430" TextWrapping="Wrap" Width="344" IsReadOnly="True"/>
+        Title="Algorytm Genetyczny" Height="560" Width="1000">
+    <Grid Height="529" Margin="0,0,-0.4,0" VerticalAlignment="Top">
+        <xaml:MapControl Name="MyMapControl" Height="415" Width="600" Margin="0,0,384,104" HorizontalAlignment="Right" VerticalAlignment="Bottom"></xaml:MapControl>
+        <ScrollViewer  HorizontalAlignment="Left" Height="460" Margin="615,10,0,0" VerticalAlignment="Top" Width="369" >
+            <TextBox x:Name="Logs" Height="460" TextWrapping="Wrap" Width="344" IsReadOnly="True"/>
         </ScrollViewer>
-        <Button x:Name="ShowCity" Content="Wczytaj Dane Początkowe" HorizontalAlignment="Left" Height="26" Margin="10,414,0,0" VerticalAlignment="Top" Width="195" Click="ShowCity_Click"/>
-        <Button x:Name="Sim1" Content="Rozpocznij Symulacje" HorizontalAlignment="Left" Height="26" Margin="210,414,0,0" VerticalAlignment="Top" Width="195" Click="Sim1_Click"/>
-        <Button x:Name="Algorytm_Genetyczny" Content="Algorytm Genetyczny" HorizontalAlignment="Left" Height="26" Margin="410,414,0,0" VerticalAlignment="Top" Width="195" Click="Algorytm_Genetyczny_Click"/>
+        <Button x:Name="ShowCity" Content="Wczytaj Dane Początkowe" HorizontalAlignment="Left" Height="26" Margin="10,493,0,0" VerticalAlignment="Top" Width="195" Click="ShowCity_Click"/>
+        <Button x:Name="Sim1" Content="Rozpocznij Symulacje" HorizontalAlignment="Left" Height="26" Margin="210,493,0,0" VerticalAlignment="Top" Width="195" Click="Sim1_Click"/>
+        <Button x:Name="Algorytm_Genetyczny" Content="Algorytm Genetyczny" HorizontalAlignment="Left" Height="26" Margin="410,493,0,0" VerticalAlignment="Top" Width="195" Click="Algorytm_Genetyczny_Click"/>
+        <TextBox x:Name="NumOfCars" HorizontalAlignment="Left" Height="21" Margin="61,467,0,0" TextWrapping="Wrap" Text="100" VerticalAlignment="Top" Width="93"/>
+        <TextBox x:Name="RandStart" HorizontalAlignment="Left" Height="21" Margin="257,467,0,0" TextWrapping="Wrap" Text="10" VerticalAlignment="Top" Width="50"/>
+        <TextBox x:Name="RandEnd" HorizontalAlignment="Left" Height="21" Margin="355,467,0,0" TextWrapping="Wrap" Text="30" VerticalAlignment="Top" Width="50"/>
+        <TextBox x:Name="MutationPercent" HorizontalAlignment="Left" Height="21" Margin="460,467,0,0" TextWrapping="Wrap" Text="20" VerticalAlignment="Top" Width="93"/>
+        <Label Content="Ilość samochodów" HorizontalAlignment="Left" Height="25" Margin="10,442,0,0" VerticalAlignment="Top" Width="114"/>
+        <Label Content="Czas zmiany świateł (s)" HorizontalAlignment="Left" Height="25" Margin="210,442,0,0" VerticalAlignment="Top" Width="195"/>
+        <Label Content="Od:" HorizontalAlignment="Left" Height="25" Margin="210,463,0,0" VerticalAlignment="Top" Width="42"/>
+        <Label Content="Do:" HorizontalAlignment="Left" Height="25" Margin="312,463,0,0" VerticalAlignment="Top" Width="42"/>
+        <Label Content="Współczynnik mutacji (%)" HorizontalAlignment="Left" Height="25" Margin="410,442,0,0" VerticalAlignment="Top" Width="195"/>
 
     </Grid>
 </Window>

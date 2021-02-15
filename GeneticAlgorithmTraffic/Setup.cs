@@ -51,6 +51,11 @@ namespace GeneticAlgorithmTraffic
         public long bestSum;
         public double[] bestChangeTime;
         int pokolenie = 0;
+        int liczbaOsobnikow = 0;
+
+        public int randStart=10000;
+        public int randEnd=30000;
+
         public Setup(TextBox Logs)
         {
             textBox = Logs;
@@ -239,7 +244,7 @@ namespace GeneticAlgorithmTraffic
                  greenLightsLayer.RefreshData(greenLightsLayer.Envelope, 1, true);//ViewChanged(true, greenTrafficSignalsLayer.Envelope, 1);
              }
          }
-         public void LoadNextSimulation(double times)
+         public void LoadNextSimulation()
          {
              foreach(var c in cars)
              {
@@ -247,21 +252,31 @@ namespace GeneticAlgorithmTraffic
              }
              foreach(var cro in crossings)
              {
-                 cro.ResetAndChangeTime(times);
+                 cro.ResetAndChangeTime(randStart+(Variables.random.Next()% (randEnd - randStart)));
              }
              time =0;
 
 
          }
-         public void Start(MapControl myMapControl)
+         public void Start(MapControl myMapControl, int randStart, int randEnd,int liczbaOsobnikow)
          {
+            this.randStart = randStart;
+            this.randEnd = randEnd;
+            this.liczbaOsobnikow = liczbaOsobnikow;
              Task simulation=new Task(()=> { SimulationStart(myMapControl); }) ;
              simulation.Start();
              simulation.Wait();
          }
 
-        public void Start2(MapControl myMapControl)
+        public void Start2(MapControl myMapControl, int randStart, int randEnd, int liczbaOsobnikow)
         {
+            this.randStart = randStart;
+            this.randEnd = randEnd;
+            firstSim = true;
+            genChangeTime = new List<double[]>();
+            genSum = new List<long>();
+            pokolenie = 0;
+            this.liczbaOsobnikow = liczbaOsobnikow;
             Task simLoop = new Task(() =>
               {
                   SimLoop(myMapControl);
@@ -271,9 +286,10 @@ namespace GeneticAlgorithmTraffic
 
         public void SimLoop(MapControl myMapControl)
         {
-            for( int i = 0; i < 4; i++)
+            for( int i = 0; i < liczbaOsobnikow; i++)
             {
-                LoadNextSimulation(Variables.SIMULATION_TIME*(i+1));
+                
+                LoadNextSimulation();
                 SimulationStart(myMapControl);
             }
         }
@@ -294,19 +310,19 @@ namespace GeneticAlgorithmTraffic
                  {
                      if (tl.greenOn == true)
                      {
-                         greenLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
+                        // greenLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
                      }
                      else
                      {
                          redLights.Add(tl);
-                         redLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
+                        // redLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
                      }
                  }
              }
-             foreach (var c in cars)
+            /* foreach (var c in cars)
              {
                  carsMapPoints.Add(SphericalMercator.FromLonLat(c.position.X, c.position.Y).ToDoubleArray());
-             }
+             }*/
 
              var loop = true;
              //dopoki samochody jeżdżą to działa pętla
@@ -335,16 +351,16 @@ namespace GeneticAlgorithmTraffic
                              if (tl.greenOn == true)
                              {
 
-                                 greenLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
+                                 //greenLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
                              }
                              else
                              {
                                  redLights.Add(tl);
-                                 redLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
+                                 //redLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
                              }
                          }
                      }
-                     TrafficLightsLayerUpdate(myMapControl);
+                     //TrafficLightsLayerUpdate(myMapControl);
                      updatedTL = false;
                  }
                  foreach(var c in cars)
@@ -360,9 +376,9 @@ namespace GeneticAlgorithmTraffic
                      carsMapPoints = new List<double[]>();
                      foreach(var c in cars)
                      {
-                         carsMapPoints.Add(SphericalMercator.FromLonLat(c.position.X, c.position.Y).ToDoubleArray());
+                         //carsMapPoints.Add(SphericalMercator.FromLonLat(c.position.X, c.position.Y).ToDoubleArray());
                      }
-                     CarsLayerUpdate(myMapControl);
+                     //CarsLayerUpdate(myMapControl);
                      updatedC = false;
                  }
                  var test = 0;
@@ -398,7 +414,7 @@ namespace GeneticAlgorithmTraffic
          }
 
 
-         public void Algorithm()
+         public void Algorithm(int mutation)
          {
              //ocena
              long sumOfTimes = 0;
@@ -515,10 +531,10 @@ namespace GeneticAlgorithmTraffic
             //mutacja
             foreach(var k in krzyzowanie)
             {
-                if ((Variables.random.Next() % 100) <= 20)
+                if ((Variables.random.Next() % 100) <= mutation)
                 {
                     var mutPos = Variables.random.Next() % k.Count();
-                    k[mutPos] = 10000+Variables.random.Next() % 20000;
+                    k[mutPos] = randStart+Variables.random.Next() % (randEnd-randStart);
                 }
                 
             }
