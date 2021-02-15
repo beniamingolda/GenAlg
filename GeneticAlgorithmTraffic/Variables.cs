@@ -11,7 +11,7 @@ namespace GeneticAlgorithmTraffic
         public const string FILE_NAME = "swietokrzyskie-latest.osm.pbf";
         public const int SIMULATION_TIME = 10000;
 		public static Random random = new Random();
-		public const string OSRM_URL = "http://localhost:5000/route/v1/driving/";
+		public const string OSRM_URL = "http://router.project-osrm.org/route/v1/driving/";
 		//router.project-osrm.org
 		//localhost:5000
 

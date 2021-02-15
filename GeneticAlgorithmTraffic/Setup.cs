@@ -146,319 +146,337 @@ namespace GeneticAlgorithmTraffic
         public void GenerateCars(int numberOfCars)
         {
             
-            PrintLog("Generowanie pojazdów");
-            
+           
+
             for(var i = 0; i < numberOfCars; i++)
-            {
-                Thread singleCar = new Thread(() =>
-                {
-                    var c = new Car(i + 1, loadMapNodes.LoadCityNodes());
-                    
-                    cars.Add(c);
+             {
+                 Thread singleCar = new Thread(() =>
+                 {
+                     var c = new Car(i + 1, loadMapNodes.LoadCityNodes());
 
-                    PrintLog("Pojazd " + i.ToString() + "  dodany");
-                });
+                     cars.Add(c);
 
-                singleCar.Start();
-                //singleCar.Join();
-                
-            }
+                     PrintLog("Pojazd " + i.ToString() + "  dodany");
+                 });
+
+                 singleCar.Start();
+                 singleCar.Join();
+
+             }
 
 
 
+         }
+
+         private static void CarsLayerUpdate(MapControl myMapControl)
+         {
+             if (carsLayer == null)
+             {
+                 var feature = new Feature
+                 {
+                     Geometry = new MultiPoint(carsMapPoints)
+                 };
+                 var provider = new MemoryProvider(feature);
+                 carsLayer = new MemoryLayer
+                 {
+                     DataSource = provider,
+                     Style = new SymbolStyle
+                     {
+                         Fill = new Brush(new Color(0, 0, 0)),
+                         SymbolScale = 0.25
+                     }
+                 };
+                 myMapControl.Map.Layers.Add(carsLayer);
+             }
+             else
+             {
+                 carsLayer.DataSource = new MemoryProvider(
+                     new Feature
+                     {
+                         Geometry = new MultiPoint(carsMapPoints)
+                     });
+                 myMapControl.Refresh();
+                 //carsLayer.ClearCache();
+                 carsLayer.RefreshData(carsLayer.Envelope, 1, true);//.ViewChanged(true, carsLayer.Envelope, 1);
+             }
+         }
+
+         private static void TrafficLightsLayerUpdate(MapControl myMapControl)
+         {
+             if (redLightsLayer == null)
+             {
+                 var feature = new Feature
+                 {
+                     Geometry = new MultiPoint(redLightsPoints)
+                 };
+                 var provider = new MemoryProvider(feature);
+                 redLightsLayer = new MemoryLayer { DataSource = provider, Style = new SymbolStyle { Fill = new Brush(Color.Red), SymbolScale = 0.33 } };
+                 myMapControl.Map.Layers.Add(redLightsLayer);
+             }
+             else
+             {
+                 redLightsLayer.DataSource = new MemoryProvider(new Feature { Geometry = new MultiPoint(redLightsPoints) });
+                 myMapControl.Refresh();
+                 //redTrafficSignalsLayer.		ClearCache();
+                 redLightsLayer.RefreshData(redLightsLayer.Envelope, 1, true); //ViewChanged(true, redTrafficSignalsLayer.Envelope, 1);
+             }
+
+             if (greenLightsLayer == null)
+             {
+                 var feature = new Feature
+                 {
+                     Geometry = new MultiPoint(greenLightsPoints)
+                 };
+                 var provider = new MemoryProvider(feature);
+                 greenLightsLayer = new MemoryLayer { DataSource = provider, Style = new SymbolStyle { Fill = new Brush(Color.Green), SymbolScale = 0.33 } };
+                 myMapControl.Map.Layers.Add(greenLightsLayer);
+             }
+             else
+             {
+                 greenLightsLayer.DataSource = new MemoryProvider(new Feature { Geometry = new MultiPoint(greenLightsPoints) });
+                 myMapControl.Refresh();
+                 //greenTrafficSignalsLayer.ClearCache();
+                 greenLightsLayer.RefreshData(greenLightsLayer.Envelope, 1, true);//ViewChanged(true, greenTrafficSignalsLayer.Envelope, 1);
+             }
+         }
+         public void LoadNextSimulation(double times)
+         {
+             foreach(var c in cars)
+             {
+                 c.ResetPositions();
+             }
+             foreach(var cro in crossings)
+             {
+                 cro.ResetAndChangeTime(times);
+             }
+             time =0;
+
+
+         }
+         public void Start(MapControl myMapControl)
+         {
+             Task simulation=new Task(()=> { SimulationStart(myMapControl); }) ;
+             simulation.Start();
+             simulation.Wait();
+         }
+
+        public void Start2(MapControl myMapControl)
+        {
+            Task simLoop = new Task(() =>
+              {
+                  SimLoop(myMapControl);
+              });
+            simLoop.Start();
         }
 
-        private static void CarsLayerUpdate(MapControl myMapControl)
+        public void SimLoop(MapControl myMapControl)
         {
-            if (carsLayer == null)
+            for( int i = 0; i < 4; i++)
             {
-                var feature = new Feature
-                {
-                    Geometry = new MultiPoint(carsMapPoints)
-                };
-                var provider = new MemoryProvider(feature);
-                carsLayer = new MemoryLayer
-                {
-                    DataSource = provider,
-                    Style = new SymbolStyle
-                    {
-                        Fill = new Brush(new Color(0, 0, 0)),
-                        SymbolScale = 0.25
-                    }
-                };
-                myMapControl.Map.Layers.Add(carsLayer);
-            }
-            else
-            {
-                carsLayer.DataSource = new MemoryProvider(
-                    new Feature
-                    {
-                        Geometry = new MultiPoint(carsMapPoints)
-                    });
-                myMapControl.Refresh();
-                //carsLayer.ClearCache();
-                carsLayer.RefreshData(carsLayer.Envelope, 1, true);//.ViewChanged(true, carsLayer.Envelope, 1);
-            }
-        }
-
-        private static void TrafficLightsLayerUpdate(MapControl myMapControl)
-        {
-            if (redLightsLayer == null)
-            {
-                var feature = new Feature
-                {
-                    Geometry = new MultiPoint(redLightsPoints)
-                };
-                var provider = new MemoryProvider(feature);
-                redLightsLayer = new MemoryLayer { DataSource = provider, Style = new SymbolStyle { Fill = new Brush(Color.Red), SymbolScale = 0.33 } };
-                myMapControl.Map.Layers.Add(redLightsLayer);
-            }
-            else
-            {
-                redLightsLayer.DataSource = new MemoryProvider(new Feature { Geometry = new MultiPoint(redLightsPoints) });
-                myMapControl.Refresh();
-                //redTrafficSignalsLayer.		ClearCache();
-                redLightsLayer.RefreshData(redLightsLayer.Envelope, 1, true); //ViewChanged(true, redTrafficSignalsLayer.Envelope, 1);
-            }
-
-            if (greenLightsLayer == null)
-            {
-                var feature = new Feature
-                {
-                    Geometry = new MultiPoint(greenLightsPoints)
-                };
-                var provider = new MemoryProvider(feature);
-                greenLightsLayer = new MemoryLayer { DataSource = provider, Style = new SymbolStyle { Fill = new Brush(Color.Green), SymbolScale = 0.33 } };
-                myMapControl.Map.Layers.Add(greenLightsLayer);
-            }
-            else
-            {
-                greenLightsLayer.DataSource = new MemoryProvider(new Feature { Geometry = new MultiPoint(greenLightsPoints) });
-                myMapControl.Refresh();
-                //greenTrafficSignalsLayer.ClearCache();
-                greenLightsLayer.RefreshData(greenLightsLayer.Envelope, 1, true);//ViewChanged(true, greenTrafficSignalsLayer.Envelope, 1);
-            }
-        }
-        public void LoadNextSimulation(double times)
-        {
-            foreach(var c in cars)
-            {
-                c.ResetPositions();
-            }
-            foreach(var cro in crossings)
-            {
-                cro.ResetAndChangeTime(times);
-            }
-            time =0;
-
-
-        }
-        public void Start(MapControl myMapControl)
-        {
-            Task simulation=new Task(()=> { SimulationStart(myMapControl); }) ;
-            simulation.Start();
-            simulation.Wait();
-        }
-
-        public void SimulationStart(MapControl myMapControl)
-        {
-            
-            greenLightsPoints = new List<double[]>();
-            redLightsPoints = new List<double[]>();
-            carsMapPoints = new List<double[]>();
-            var redLights = new List<TrafficLight>();
-            var updatedTL = true;
-            var updatedC = true;
-
-            foreach(var cro in crossings)
-            {
-                foreach(var tl in cro.trafficLights)
-                {
-                    if (tl.greenOn == true)
-                    {
-                        greenLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
-                    }
-                    else
-                    {
-                        redLights.Add(tl);
-                        redLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
-                    }
-                }
-            }
-            foreach (var c in cars)
-            {
-                carsMapPoints.Add(SphericalMercator.FromLonLat(c.position.X, c.position.Y).ToDoubleArray());
-            }
-
-            var loop = true;
-            //dopoki samochody jeżdżą to działa pętla
-            PrintLog("Start symulacji");
-            while (loop)
-            {
-                time++;
-                foreach(var cro in crossings)
-                {
-                    if (time % cro.changeTime == 0)
-                    {
-
-                        updatedTL = true;
-                        cro.ChangeLights();
-                    }
-                }
-                if (updatedTL)
-                {
-                    greenLightsPoints = new List<double[]>();
-                    redLightsPoints = new List<double[]>();
-                    redLights = new List<TrafficLight>();
-                    foreach (var cro in crossings)
-                    {
-                        foreach(var tl in cro.trafficLights)
-                        {
-                            if (tl.greenOn == true)
-                            {
-
-                                greenLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
-                            }
-                            else
-                            {
-                                redLights.Add(tl);
-                                redLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
-                            }
-                        }
-                    }
-                    TrafficLightsLayerUpdate(myMapControl);
-                    updatedTL = false;
-                }
-                foreach(var c in cars)
-                {
-                    if (time % c.nextUpdate == 0)
-                    {
-                        updatedC = true;
-                        c.Update(redLights);
-                    }
-                }
-                if (updatedC)
-                {
-                    carsMapPoints = new List<double[]>();
-                    foreach(var c in cars)
-                    {
-                        carsMapPoints.Add(SphericalMercator.FromLonLat(c.position.X, c.position.Y).ToDoubleArray());
-                    }
-                    CarsLayerUpdate(myMapControl);
-                    updatedC = false;
-                }
-                var test = 0;
-                foreach(var c in cars)
-                {
-
-                    if (c.finish == false)
-                    {
-                        
-                        test = test + 1;
-                    }
-                }
-                if (test == 0)
-                {
-                    long sum=0;
-                    loop = false;
-                    foreach(var c in cars)
-                    {
-                        sum = sum + c.waitingTime;
-                    }
-                    PrintLog("Czas postoju na czerwonym " + sum);
-                    genSum.Add(sum);
-                    double[] listOfTimes=new double[crossings.Count];
-                    var i = 0;
-                    foreach(var cro in crossings)
-                    {
-                        listOfTimes[i] = cro.changeTime;
-                        i++;
-                    }                   
-                    genChangeTime.Add(listOfTimes);                    
-                }
+                LoadNextSimulation(Variables.SIMULATION_TIME*(i+1));
+                SimulationStart(myMapControl);
             }
         }
 
+         public void SimulationStart(MapControl myMapControl)
+         {
 
-        public void Algorithm()
-        {
-            //ocena
-            long sumOfTimes = 0;
-            foreach(var s in genSum)
-            {
-                sumOfTimes += s;
-            }
-            double[] ocena = new double[genSum.Count];
-            double ocenaSum = 0;
-            for(int i=0; i < ocena.Count(); i++)
-            {
-                ocena[i] = sumOfTimes / (double)genSum[i];
-                ocenaSum = ocenaSum + ocena[i];
-            }
-            double[] ocena2 = new double[ocena.Count()];
-            for (int i = 0; i < ocena2.Count(); i++)
-            {
-                ocena2[i] = ocena[i] / ocenaSum;
-            }
-            var tmpBest = genSum[0];
-            var tmpChangeTime = new double[genChangeTime.Count()];
-            for(var o=0;o<ocena2.Count();o++)
-            {
-                if (tmpBest > genSum[o])
-                {
-                    tmpBest = genSum[o];
-                    tmpChangeTime = genChangeTime[o];
-                }
-            }
-            //zapisanie najlepszego rozwiązania
-            if (firstSim==true)
-            {
-                bestSum = tmpBest;
-                bestChangeTime = tmpChangeTime;
-                firstSim = false;
-            }
-            else
-            {
-                if (bestSum > tmpBest)
-                {
-                    bestSum = tmpBest;
-                    bestChangeTime = tmpChangeTime;
-                }
-            }
-            PrintLog("Best time=" + bestSum);
+             greenLightsPoints = new List<double[]>();
+             redLightsPoints = new List<double[]>();
+             carsMapPoints = new List<double[]>();
+             var redLights = new List<TrafficLight>();
+             var updatedTL = true;
+             var updatedC = true;
 
-            //reprodukcja
-            List<double[]> reprodukcja = new List<double[]>();
-            var x = 0;
-            var z = 0;
-            var loop = true;
-            var d = Variables.random.NextDouble();
-            while (loop)
-            {
-                if (d<=ocena2[x])
-                {
-                    reprodukcja.Add( genChangeTime[x]);
-                    x = 0;
-                    z++;
-                    d = Variables.random.NextDouble();
-                    if (z == genChangeTime.Count()) 
-                    {
-                        loop = false;
-                    }
+             foreach(var cro in crossings)
+             {
+                 foreach(var tl in cro.trafficLights)
+                 {
+                     if (tl.greenOn == true)
+                     {
+                         greenLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
+                     }
+                     else
+                     {
+                         redLights.Add(tl);
+                         redLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
+                     }
+                 }
+             }
+             foreach (var c in cars)
+             {
+                 carsMapPoints.Add(SphericalMercator.FromLonLat(c.position.X, c.position.Y).ToDoubleArray());
+             }
 
-                }
-                else
-                {
-                    d -= ocena2[x];
-                    x++;
-                }
+             var loop = true;
+             //dopoki samochody jeżdżą to działa pętla
+             PrintLog("Start symulacji");
+             while (loop)
+             {
+                 time++;
+                 foreach(var cro in crossings)
+                 {
+                     if (time % cro.changeTime == 0)
+                     {
 
-            }
-            /*foreach(var r in reprodukcja)
-            {
-                PrintLog("reprodukowane= " + r[0]);
-            }
-            */
+                         updatedTL = true;
+                         cro.ChangeLights();
+                     }
+                 }
+                 if (updatedTL)
+                 {
+                     greenLightsPoints = new List<double[]>();
+                     redLightsPoints = new List<double[]>();
+                     redLights = new List<TrafficLight>();
+                     foreach (var cro in crossings)
+                     {
+                         foreach(var tl in cro.trafficLights)
+                         {
+                             if (tl.greenOn == true)
+                             {
+
+                                 greenLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
+                             }
+                             else
+                             {
+                                 redLights.Add(tl);
+                                 redLightsPoints.Add(SphericalMercator.FromLonLat((double)tl.trafficLightNode.Longitude, (double)tl.trafficLightNode.Latitude).ToDoubleArray());
+                             }
+                         }
+                     }
+                     TrafficLightsLayerUpdate(myMapControl);
+                     updatedTL = false;
+                 }
+                 foreach(var c in cars)
+                 {
+                     if (time % c.nextUpdate == 0)
+                     {
+                         updatedC = true;
+                         c.Update(redLights);
+                     }
+                 }
+                 if (updatedC)
+                 {
+                     carsMapPoints = new List<double[]>();
+                     foreach(var c in cars)
+                     {
+                         carsMapPoints.Add(SphericalMercator.FromLonLat(c.position.X, c.position.Y).ToDoubleArray());
+                     }
+                     CarsLayerUpdate(myMapControl);
+                     updatedC = false;
+                 }
+                 var test = 0;
+                 foreach(var c in cars)
+                 {
+
+                     if (c.finish == false)
+                     {
+
+                         test = test + 1;
+                     }
+                 }
+                 if (test == 0)
+                 {
+                     long sum=0;
+                     loop = false;
+                     foreach(var c in cars)
+                     {
+                         sum = sum + c.waitingTime;
+                     }
+                     PrintLog("Czas postoju na czerwonym " + sum);
+                     genSum.Add(sum);
+                     double[] listOfTimes=new double[crossings.Count];
+                     var i = 0;
+                     foreach(var cro in crossings)
+                     {
+                         listOfTimes[i] = cro.changeTime;
+                         i++;
+                     }                   
+                     genChangeTime.Add(listOfTimes);                    
+                 }
+             }
+         }
+
+
+         public void Algorithm()
+         {
+             //ocena
+             long sumOfTimes = 0;
+             foreach(var s in genSum)
+             {
+                 sumOfTimes += s;
+             }
+             double[] ocena = new double[genSum.Count];
+             double ocenaSum = 0;
+             for(int i=0; i < ocena.Count(); i++)
+             {
+                 ocena[i] = sumOfTimes / (double)genSum[i];
+                 ocenaSum = ocenaSum + ocena[i];
+             }
+             double[] ocena2 = new double[ocena.Count()];
+             for (int i = 0; i < ocena2.Count(); i++)
+             {
+                 ocena2[i] = ocena[i] / ocenaSum;
+             }
+             var tmpBest = genSum[0];
+             var tmpChangeTime = new double[genChangeTime.Count()];
+             for(var o=0;o<ocena2.Count();o++)
+             {
+                 if (tmpBest > genSum[o])
+                 {
+                     tmpBest = genSum[o];
+                     tmpChangeTime = genChangeTime[o];
+                 }
+             }
+             //zapisanie najlepszego rozwiązania
+             if (firstSim==true)
+             {
+                 bestSum = tmpBest;
+                 bestChangeTime = tmpChangeTime;
+                 firstSim = false;
+             }
+             else
+             {
+                 if (bestSum > tmpBest)
+                 {
+                     bestSum = tmpBest;
+                     bestChangeTime = tmpChangeTime;
+                 }
+             }
+             PrintLog("Best time=" + bestSum);
+
+             //reprodukcja
+             List<double[]> reprodukcja = new List<double[]>();
+             var x = 0;
+             var z = 0;
+             var loop = true;
+             var d = Variables.random.NextDouble();
+             while (loop)
+             {
+                 if (d<=ocena2[x])
+                 {
+                     reprodukcja.Add( genChangeTime[x]);
+                     x = 0;
+                     z++;
+                     d = Variables.random.NextDouble();
+                     if (z == genChangeTime.Count()) 
+                     {
+                         loop = false;
+                     }
+
+                 }
+                 else
+                 {
+                     d -= ocena2[x];
+                     x++;
+                 }
+
+             }
+             /*foreach(var r in reprodukcja)
+             {
+                 PrintLog("reprodukowane= " + r[0]);
+             }
+             */
 
             //krzyżowanie
             List<double[]> krzyzowanie = new List<double[]>();
@@ -533,7 +551,7 @@ namespace GeneticAlgorithmTraffic
                 time = 0;
 
                 //start symulacji
-                Start(myMapControl);
+                SimulationStart(myMapControl);
             }
             
         }
