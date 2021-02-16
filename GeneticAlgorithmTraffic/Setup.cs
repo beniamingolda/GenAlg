@@ -430,7 +430,32 @@ namespace GeneticAlgorithmTraffic
                  ocenaSum = ocenaSum + ocena[i];
              }
              double[] ocena2 = new double[ocena.Count()];
-             for (int i = 0; i < ocena2.Count(); i++)
+
+
+
+            //testuje
+
+            for(int i = 0; i < ocena.Count(); i++)
+            {
+                ocena[i] = ocena[i] * 10;
+            }
+
+            int maxi = ocena.Count();
+            for(int i = 0; i < ocena.Count(); i++)
+            {
+                int val = Array.FindIndex(ocena, v => v == ocena.Max());
+                ocena[val] = maxi;
+                maxi--;
+            }
+            ocenaSum = 0;
+            for (int i = 0; i < ocena.Count(); i++)
+            {
+
+                ocenaSum = ocenaSum + ocena[i];
+            }
+
+            //
+            for (int i = 0; i < ocena2.Count(); i++)
              {
                  ocena2[i] = ocena[i] / ocenaSum;
              }
@@ -444,6 +469,24 @@ namespace GeneticAlgorithmTraffic
                      tmpChangeTime = genChangeTime[o];
                  }
              }
+
+            //ocena 2
+/*
+            double max=ocena2[0];
+
+            int iter=ocena2.Count();
+            for(int i=0; i < ocena2.Count(); i++)
+            {
+                if (ocena2[i] > max)
+                {
+                    max = ocena2[i];
+                }
+            }
+            ocena2.Max();
+*/
+
+
+
              //zapisanie najlepszego rozwiązania
              if (firstSim==true)
              {
@@ -461,13 +504,17 @@ namespace GeneticAlgorithmTraffic
              }
              PrintLog("Best time=" + bestSum);
 
+
+            
+
              //reprodukcja
              List<double[]> reprodukcja = new List<double[]>();
              var x = 0;
              var z = 0;
              var loop = true;
              var d = Variables.random.NextDouble();
-             while (loop)
+            //var d = Variables.random.Next()%ocena2.Count();
+            while(loop)
              {
                  if (d<=ocena2[x])
                  {
@@ -488,6 +535,9 @@ namespace GeneticAlgorithmTraffic
                  }
 
              }
+
+
+             
              /*foreach(var r in reprodukcja)
              {
                  PrintLog("reprodukowane= " + r[0]);
